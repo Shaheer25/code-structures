@@ -1,0 +1,70 @@
+stages:
+  - test
+  - quality
+  - build
+  - deploy1
+  - deploy2
+
+docker-build-project:
+  image: docker:24.0.2-dind
+  stage: build
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -f fastapi.Dockerfile -t "$CI_REGISTRY_IMAGE:project-$CI_COMMIT_BRANCH" .
+    - docker push "$CI_REGISTRY_IMAGE:project-$CI_COMMIT_BRANCH"
+  only:
+    - develop
+    - test
+    - stage
+    - prod
+
+docker-build-cs-task-queue:
+  image: docker:24.0.2-dind
+  stage: build
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -f celery.Dockerfile -t "$CI_REGISTRY_IMAGE:cs-task-queue-$CI_COMMIT_BRANCH" .
+    - docker push "$CI_REGISTRY_IMAGE:cs-task-queue-$CI_COMMIT_BRANCH"
+  only:
+    - develop
+    - test
+    - stage
+    - prod
+
+
+# unittests:
+#  stage: test
+#  image: python:3.8-buster
+#  variables:
+#    project_CONFIG: $project_CONFIG
+#  script:
+#    - echo "Initiating Unit Tests"
+#    - pip3 install tox
+#    - make test
+
+# coverage:
+#  stage: test
+#  coverage: '/^TOTAL.+?(\S+\%)$/'
+#  image: python:3.8-buster
+#  script:
+#    - echo "Initiating Coverage"
+#    - pip3 install tox
+#    - make coverage
+
+# deploy:
+#   stage: deploy
+#   image: kroniak/ssh-client
+#   script:
+#     - rm -f .ssh/known_hosts
+#     - mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+#     - echo "$SERVER_KEY" > ~/.ssh/id_rsa
+#     - chmod 600 ~/.ssh/id_rsa
+#     - ssh $SERVER_URL "cd /root/project && git pull && source venv/bin/activate && python setup.py sdist && echo project_MONGO_URL=$project_MONGO_URL > .env && docker-compose build && docker-compose up -d"
+#   only:
+#     - develop

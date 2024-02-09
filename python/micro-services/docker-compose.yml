@@ -1,0 +1,26 @@
+version: "3.7"
+services:
+  project:
+    build:
+      context: .
+      dockerfile: fastapi.Dockerfile
+    container_name: project-fastapi
+    ports:
+      - 5000:5000
+    networks:
+      - elnet
+    environment:
+      - APP_MODULE=project.app:app
+      - PORT=5000
+      - project_MONGO_URL=mongodb://project_mongodb:27017/
+  project-worker:
+    build:
+      context: .
+      dockerfile: celery.Dockerfile
+    container_name: project-worker
+    networks:
+      - elnet
+
+networks:
+  elnet:
+    external: true

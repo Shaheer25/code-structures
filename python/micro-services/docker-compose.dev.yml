@@ -1,0 +1,33 @@
+version: "3.7"
+services:
+#  project_mongo_gui:
+#    image: huggingface/mongoku
+#    container_name: project_mongo_gui
+#    ports:
+#      - "3100:3100"
+#    depends_on:
+#      - mongodb
+#    networks:
+#      - elnet
+#    environment:
+#      - MONGOKU_DEFAULT_HOST=project_mongodb://mongodb:27017
+  project_mongodb:
+    image: mongo:latest
+    container_name: project_mongodb
+    ports:
+      - 27017:27017
+    volumes:
+      - "mongo:/data/db"
+    networks:
+      - elnet
+  project_redis:
+    image: redis:alpine
+    container_name: project_redis
+    volumes:
+      - "redis:/data"
+    networks:
+      - elnet
+
+volumes:
+  redis: {}
+  mongo: {}

@@ -1,0 +1,23 @@
+internals:
+  - spec_file:
+  - production: true
+  - host: '127.0.0.1'
+  - port: 7000
+rest_session:
+  - error_codes: '502,503,504'
+  - backoff_factor: 0.5
+  - max_retries: 5
+  - secure: "true"
+celery:
+  - broker: 'redis://project_redis:6379/4'
+  - backend: 'redis://project_redis:6379/5'
+mongodb:
+  - url: 'mongodb://mongodb:27017'
+  - database: 'project'
+redis:
+  - host: 'redis'
+  - port: 6379
+  - password: 'redis'
+  - url: 'redis://:redis@redis:6379'
+custom_logger:
+  - log_level: INFO
